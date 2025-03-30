@@ -1,9 +1,16 @@
-import ac, acsys
-import platform, os, sys
-import codecs, json
+'''SimHubUDPConnectorExtras - Send additional AC information to SimHub'''
 
-UDP_IP = "127.0.0.1"
-UDP_PORT = 30777
+import platform
+import os
+import sys
+
+import ac
+import acsys
+
+from third_party.sim_info import info
+
+from Tyres import Tyres
+from UDPDataStream import UDPDataStream
 
 if platform.architecture()[0] == "64bit":
     sysdir = os.path.dirname(__file__) + "/stdlib64"
@@ -13,38 +20,58 @@ else:
 sys.path.insert(0, sysdir)
 os.environ["PATH"] = os.environ["PATH"] + ";."
 
-import socket
+##################################################
+# Configuration variables
+##################################################
+APP_NAME = 'SimHubUDPConnectorExtras'
+UDP_IP = "127.0.0.1"
+UDP_PORT = 30777
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
+##################################################
+# Global variables
+##################################################
+car = ''
+tyre_new = ''
+tyre_old = ''
+tyres = None
+udp_data_stream = None
 
-
-def sendUDPDatastream(data):
-    sock.sendto(bytes(json.dumps(data), "UTF-8"), (UDP_IP, UDP_PORT))
-
+##################################################
+# Assetto Corsa functions
+##################################################
 
 def acMain(ac_version):
+    
+    global car, udp_data_stream
+    
+    car = ac.getCarName(0)
+    udp_data_stream = UDPDataStream(UDP_IP, UDP_PORT, debug=True)
+
+    ac.log("Hello: %s", APP_NAME)
+    ac.console("Hello: %s", APP_NAME)
+
     # App window
-    appWindow = ac.newApp("SimHubUDPConnectorExtras")
+    appWindow = ac.newApp(APP_NAME)
     ac.setTitle(appWindow, "")
     ac.drawBorder(appWindow, 0)
 
 
 def acUpdate(deltaT):
-    data = {
-        "rpm": ac.getCarState(0, acsys.CS.RPM),
-        "turbo": ac.getCarState(0, acsys.CS.TurboBoost),
-        "kersCharge": ac.getCarState(0, acsys.CS.KersCharge),
-        "kersInput": ac.getCarState(0, acsys.CS.KersInput),
-        "clutch": ac.getCarState(0, acsys.CS.Clutch),
-        "brake": ac.getCarState(0, acsys.CS.Brake),
-        "throttle": ac.getCarState(0, acsys.CS.Gas),
-        "ffb": ac.getCarState(0, acsys.CS.LastFF),
-        "gear": ac.getCarState(0, acsys.CS.Gear),
-        "driveTrainSpeed": ac.getCarState(0, acsys.CS.DriveTrainSpeed),
-    }
-    sendUDPDatastream(data)
+    
+    global tyre_new, tyre_old, tyres
+
+    tyre_new = info.graphics.tyreCompound
+    ac.log("%s", tyre_new)
+    if tyre_new != tyre_old:
+        ac.console("%s: Changed from %s to %s tyres", tyre_old, tyre_new)
+        tyre_old = tyre_new
+        tyres = Tyres(car, tyre_new)
+        udp_data_stream.send(tyres.data())
+
+    
+
 
 
 # Do on AC shutdown
 def acShutdown():
-    sock.close()
+    udp_data_stream.close()
