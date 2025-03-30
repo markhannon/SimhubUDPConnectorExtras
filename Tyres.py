@@ -1,10 +1,21 @@
 '''Helper class to read, parse and send Tyre data.'''
 
 import configparser
+import platform
+import os
 import re
+import sys
 
-import ac
+if platform.architecture()[0] == "64bit":
+    sysdir = os.path.dirname(__file__) + "/stdlib64"
+else:
+    sysdir = os.path.dirname(__file__) + "/stdlib"
 
+sys.path.insert(0, sysdir)
+os.environ["PATH"] = os.environ["PATH"] + ";."
+
+class TyresError(Exception):
+    '''Tyres error wrapper'''
 class Tyres:
     '''Tyres info class.'''
 
@@ -42,21 +53,27 @@ class Tyres:
         extra_ini.read(COMPOUNDS_PATH + self.car + ".ini")
         tyres_idx = re.sub('\_+$', '', re.sub(r'[^\w]+', '_', self.tyre)).lower()
         
-        if basic_ini.has_section(self.car + "_" + tyres_idx):
-            try:
-                self.idealPressureFront = int(basic_ini.get(self.car + "_" + tyres_idx, "IDEAL_PRESSURE_F"))
-                self.idealPressureRear = int(basic_ini.get(self.car + "_" + tyres_idx, "IDEAL_PRESSURE_R"))
-                self.minimumOptimalTemperature = int(basic_ini.get(self.car + "_" + tyres_idx, "MIN_OPTIMAL_TEMP"))
-                self.maximumOptimalTemperature = int(basic_ini.get(self.car + "_" + tyres_idx, "MAX_OPTIMAL_TEMP"))
-            except configparser.Error:
-                ac.console("Tyres: Error loading tyre data from %s", COMPOUNDS_PATH + "compounds.ini")
-        elif extra_ini.has_section(self.car + "_" + tyres_idx):
-            try:
-                self.idealPressureFront = int(extra_ini.get(self.car + "_" + tyres_idx, "IDEAL_PRESSURE_F"))
-                self.idealPressureRear = int(extra_ini.get(self.car + "_" + tyres_idx, "IDEAL_PRESSURE_R"))
-                self.minimumOptimalTemperature = int(float(extra_ini.get(self.car + "_" + tyres_idx, "MIN_OPTIMAL_TEMP")))
-                self.maximumOptimalTemperature = int(float(extra_ini.get(self.car + "_" + tyres_idx, "MAX_OPTIMAL_TEMP")))
-            except configparser.Error:
-                ac.console("Tyres: Error loading tyre data from %s", COMPOUNDS_PATH + self.car + ".ini")
-        else:
-            ac.console("Tyres: Error loading tyre data from compounds.ini and %s.ini", self.car)
+        if extra_ini.has_section(self.car + "_" + tyres_idx):
+            self.idealPressureFront = int(extra_ini.get(self.car + "_" + tyres_idx, "IDEAL_PRESSURE_F"))
+            self.idealPressureRear = int(extra_ini.get(self.car + "_" + tyres_idx, "IDEAL_PRESSURE_R"))
+            self.minimumOptimalTemperature = int(float(extra_ini.get(self.car + "_" + tyres_idx, "MIN_OPTIMAL_TEMP")))
+            self.maximumOptimalTemperature = int(float(extra_ini.get(self.car + "_" + tyres_idx, "MAX_OPTIMAL_TEMP")))
+
+        # if basic_ini.has_section(self.car + "_" + tyres_idx):
+        #     try:
+        #         self.idealPressureFront = int(basic_ini.get(self.car + "_" + tyres_idx, "IDEAL_PRESSURE_F"))
+        #         self.idealPressureRear = int(basic_ini.get(self.car + "_" + tyres_idx, "IDEAL_PRESSURE_R"))
+        #         self.minimumOptimalTemperature = int(basic_ini.get(self.car + "_" + tyres_idx, "MIN_OPTIMAL_TEMP"))
+        #         self.maximumOptimalTemperature = int(basic_ini.get(self.car + "_" + tyres_idx, "MAX_OPTIMAL_TEMP"))
+        #     except:
+        #         raise TyresError("Tyres: Error loading tyre data from %s", COMPOUNDS_PATH + "compounds.ini")
+        # elif extra_ini.has_section(self.car + "_" + tyres_idx):
+        #     try:
+        #         self.idealPressureFront = int(extra_ini.get(self.car + "_" + tyres_idx, "IDEAL_PRESSURE_F"))
+        #         self.idealPressureRear = int(extra_ini.get(self.car + "_" + tyres_idx, "IDEAL_PRESSURE_R"))
+        #         self.minimumOptimalTemperature = int(float(extra_ini.get(self.car + "_" + tyres_idx, "MIN_OPTIMAL_TEMP")))
+        #         self.maximumOptimalTemperature = int(float(extra_ini.get(self.car + "_" + tyres_idx, "MAX_OPTIMAL_TEMP")))
+        #     except:
+        #         raise TyresError("Tyres: Error loading tyre data from %s", COMPOUNDS_PATH + self.car + ".ini")
+        # else:
+        #     raise TyresError("Tyres: Error loading tyre data from compounds.ini and %s.ini", self.car)
