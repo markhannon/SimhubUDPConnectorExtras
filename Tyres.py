@@ -14,6 +14,11 @@ else:
 sys.path.insert(0, sysdir)
 os.environ["PATH"] = os.environ["PATH"] + ";."
 
+import ctypes
+from ctypes import *
+from third_party.sim_info import info
+
+
 class TyresError(Exception):
     '''Tyres error wrapper'''
 class Tyres:
@@ -28,6 +33,8 @@ class Tyres:
         self.maximumOptimalTemperature = 0
         self.tyre = tyre
         self.tyreCompound = ''
+        
+        self.lap_number_changed = info.graphics.completedLaps
 
         self.parse_compounds()
 
@@ -39,7 +46,8 @@ class Tyres:
             'idealPressureRear': self.idealPressureRear,
             'minimumOptimalTemperature': self.minimumOptimalTemperature,
             'maximumOptimalTemperature': self.maximumOptimalTemperature,
-            'tyreCompound': self.tyre[self.tyre.find("(")+1:self.tyre.find(")")]
+            'tyreCompound': self.tyre[self.tyre.find("(")+1:self.tyre.find(")")],
+            'tyreLapsUsed': int(info.graphics.completedLaps) - int(self.lap_number_changed)
             }
 
     def parse_compounds(self):

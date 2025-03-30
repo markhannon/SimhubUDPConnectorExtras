@@ -1,12 +1,12 @@
 '''SimHubUDPConnectorExtras - Send additional AC information to SimHub'''
 
-import ac
-import acsys
-import sys
+import json
 import os.path
 import platform
-import json
+import sys
 
+import ac
+import acsys
 
 if platform.architecture()[0] == "64bit":
     sysdir = os.path.dirname(__file__) + "/stdlib64"
@@ -18,17 +18,17 @@ os.environ["PATH"] = os.environ["PATH"] + ";."
 
 import ctypes
 from ctypes import *
-from third_party.sim_info import info
 
+from third_party.sim_info import info
 from Tyres import Tyres, TyresError
-from UDPDataStream import UDPDataStream 
+from UDPDataStream import UDPDataStream
 
 ##################################################
 # Configuration variables
 ##################################################
 APP_NAME = 'SimHubUDPConnectorExtras'
 UDP_IP = "127.0.0.1"
-UDP_PORT = 20777
+UDP_PORT = 30777
 
 ##################################################
 # Global variables
@@ -40,7 +40,7 @@ tyres = None
 udp_data_stream = None
 
 l_data = ''
-launchTime = 0
+launch_time = 0
 
 ##################################################
 # Assetto Corsa functions
@@ -63,12 +63,12 @@ def acMain(ac_version):
 
 def acUpdate(deltaT):
     
-    global l_data, tyre_new, tyre_old, tyres, launchTime
-    launchTime = launchTime + deltaT 
+    global l_data, tyre_new, tyre_old, tyres, launch_time
+    
+    launch_time += + deltaT 
     
     tyre_new = info.graphics.tyreCompound
-
-    if launchTime  > 3 or tyre_new != tyre_old:
+    if launch_time > 3 and tyre_new != tyre_old:
         tyre_old = tyre_new
         try:
             tyres = Tyres(car, tyre_new)
