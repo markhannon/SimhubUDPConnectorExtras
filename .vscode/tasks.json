@@ -1,0 +1,25 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build ac app files",
+            "type": "shell",
+            "command": "./build.ps1",
+            "problemMatcher": []
+        },
+        {
+            "label": "Import app files from ac",
+            "type": "shell",
+            "command": "./import.ps1",
+            "problemMatcher": []
+        },
+        {
+            "label": "Install app to AC",
+            "type": "shell",
+            "command": "./install.ps1",
+            "problemMatcher": []
+        }
+    ]
+}
