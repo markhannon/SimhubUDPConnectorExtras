@@ -4,5 +4,5 @@
     "bld": "apps",
     "out": "outputs",
     "name": "SimhubUDPConnectorExtras", 
-    "version": "0.9"
+    "version": "1.0.2"
 }
