@@ -1,21 +1,18 @@
 # 
-# Install latests dashboards to simhub
+# Install latests apps to AC
 #
+
+Set-PSDebug -Trace 0
 
 $SettingsObject = Get-Content -Path settings.json | ConvertFrom-Json
 
-Set-PSDebug -Trace 1
+$src = $SettingsObject.src
+$dst = $SettingsObject.dst
+$app = $SettingsObject.name
 
-foreach ($item in $SettingsObject.dashboards)
-{
-    $src = $SettingsObject.src
-    $dst = $SettingsObject.dst
-    $dashboard = $item.name
-    robocopy `
-    $src\$dashboard `
-    $dst\$dashboard `
-    /xd "$src\$dashboard\_Backups" `
-    /xd "$src\$dashboard\.git" `
-    /xd "$src\$dashboard\.gitignore" `
-    /mir
-}
+robocopy `
+$src\$app `
+$dst\$app `
+/xd $src\$app\.git `
+/xd $src\$app\.gitignore `
+/mir

@@ -2,18 +2,21 @@
 # Build latest dashboards as simhubdash archives
 #
 
+Set-PSDebug -Trace 0
+
 $SettingsObject = Get-Content -Path settings.json | ConvertFrom-Json
 
-New-Item -ItemType Directory -Path $SettingsObject.out
-
-foreach ($dashboard in $SettingsObject.dashboards)
+If (!(test-path $SettingsObject.out))
 {
-    Write-Host "Creating SimHubDash for" $dashboard.name "-" $dashboard.version
-    $simhubdash = @{
-        Path = $SettingsObject.src + "\" + $dashboard.name
-        CompressionLevel = "Fastest"
-        DestinationPath = $SettingsObject.out + "\" `
-        + $dashboard.name + "-" + $dashboard.version + ".simhubdash"
-    }
-    Compress-Archive @simhubdash
+    New-Item -ItemType Directory -Path $SettingsObject.out
 }
+
+Write-Host "Creating app for" $SettingsObject.name "-" $SettingsObject.version
+$app = @{
+    Path = $SettingsObject.bld
+    CompressionLevel = "Fastest"
+    DestinationPath = $SettingsObject.out + "\" `
+    + $SettingsObject.name + "-" + $SettingsObject.version + ".zip"
+}
+Compress-Archive @app
+

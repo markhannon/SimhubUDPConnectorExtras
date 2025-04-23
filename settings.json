@@ -1,8 +1,8 @@
 {
     "src": "apps\\python",
     "dst": "D:\\SteamLibrary\\steamapps\\common\\assettocorsa\\apps\\python",
+    "bld": "apps",
     "out": "outputs",
-    "apps": [
-        {"name": "SimhubUDPConnectorExtras", "version": "0.9"}
-    ]
+    "name": "SimhubUDPConnectorExtras", 
+    "version": "0.9"
 }
